@@ -1,11 +1,23 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Control from "./Control";
 
 const Tape = (props) => {
   const [tape, setTape] = useState([]);
-  const [translateX, setTranslateX] = useState(0);
-  const [druation, setDuration] = useState(600);
-  const [current, setCurrent] = useState(2500);
+  // const [translateX, setTranslateX] = useState(0);
+  // const [current, setCurrent] = useState(2500);
+
+  const info = useRef({
+    duration: 600,
+    current: 2500,
+    translateX: 0,
+  });
+
+  const updateInfo = (fieldName, value) => {
+    info.current = {
+      ...info.current,
+      [fieldName]: value,
+    };
+  };
 
   useEffect(() => {
     let elements = [];
@@ -33,26 +45,21 @@ const Tape = (props) => {
     setTape(actualTape);
   };
 
-  const moveRight = async (newValue, direction) => {
+  const move = async (newValue, direction) => {
     if (direction === ">") {
-      setTranslateX((prev) => prev - 61);
-      await sleep(druation);
-      setValueInTape("P", current + 1);
-      setCurrent((prev) => prev + 1);
+      updateInfo("translateX", info.current.translateX - 61);
+      await sleep(info.current.duration);
+      setValueInTape("P", info.current.current + 1);
+      updateInfo("current", info.current.current + 1);
     } else if (direction === "<") {
-      setTranslateX((prev) => prev + 61);
-      await sleep(druation);
-      setValueInTape("L", current - 1);
-      setCurrent((prev) => prev - 1);
+      updateInfo("translateX", info.current.translateX + 61);
+      await sleep(info.current.duration);
+      setValueInTape("L", info.current.current - 1);
+      updateInfo("current", info.current.current - 1);
     } else {
-      await sleep(druation);
-      setValueInTape("L", current);
+      await sleep(info.current.duration);
+      setValueInTape("L", info.current.current);
     }
-  };
-
-  const move = async (newValue) => {
-    newValue = "K";
-    direction;
   };
 
   return (
@@ -60,8 +67,8 @@ const Tape = (props) => {
       <div
         className="flex justify-center gap-[6px] ease-in-out"
         style={{
-          transform: `translateX(${translateX}px)`,
-          transitionDuration: `${druation}ms`,
+          transform: `translateX(${info.current.translateX}px)`,
+          transitionDuration: `${info.current.druation}ms`,
         }}
       >
         {tape.map((item, index) => {
@@ -79,7 +86,7 @@ const Tape = (props) => {
         <div className="w-0 h-0 border-l-[15px] border-l-transparent border-r-[15px] border-r-transparent border-b-[25px] border-b-primary rounded-md"></div>
       </div>
 
-      <Control />
+      <Control updateInfo={updateInfo} />
     </div>
   );
 };
