@@ -3,8 +3,6 @@ import Control from "./Control";
 
 const Tape = (props) => {
   const [tape, setTape] = useState([]);
-  // const [translateX, setTranslateX] = useState(0);
-  // const [current, setCurrent] = useState(2500);
 
   const info = useRef({
     duration: 600,
