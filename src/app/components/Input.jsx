@@ -1,6 +1,7 @@
 import { useForm } from "react-hook-form";
+import Swal from "sweetalert2";
 
-const Input = () => {
+const Input = (props) => {
   const {
     register,
     handleSubmit,
@@ -15,10 +16,10 @@ const Input = () => {
 
     const lines = data.transitions.split("\n");
 
-    const stateRegex = /^[a-zA-Z0-9]+$/;
+    const stateRegex = /^[a-zA-Z0-9]{1,30}$/;
     const symbolRegex = /^[^,\s]$/;
     const directionRegex = /^[><-]$/;
-    const nameRegex = /^[a-zA-ZąćęłńóśźżĄĆĘŁŃÓŚŹŻ0-9]+$/u;
+    const nameRegex = /^[a-zA-ZąćęłńóśźżĄĆĘŁŃÓŚŹŻ0-9 ]{1,50}$/u;
 
     if (!nameRegex.test(data.name.trim())) {
       setError("name", {
@@ -92,7 +93,7 @@ const Input = () => {
       }
       if (!symbolRegex.test(readSymbol)) {
         setError("transitions", {
-          message: `Line ${index + 1}: Invalid symbol to write`,
+          message: `Line ${index + 1}: Invalid symbol to read`,
         });
         return;
       }
@@ -144,27 +145,40 @@ const Input = () => {
     if (flag === true) {
       let machine = {
         name: data.name.trim(),
-        initial_state: data["initial state"].trim(),
+        initialState: data["initial state"].trim(),
         finalStates: finalStates,
         transitions: transitions,
       };
 
-      console.log(machine);
-    }
+      props.updateCurrentMachine(machine);
 
-    // jak tutaj zapisywać do transitions
+      console.log(machine);
+
+      const Toast = Swal.mixin({
+        toast: true,
+        position: "top-end",
+        iconColor: "black",
+        showConfirmButton: false,
+        timer: 2500,
+        color: "black",
+      }).fire({
+        icon: "success",
+        title: "Compilation completed!",
+      });
+    }
   };
 
-  const styleInputCorrect = "input input-bordered block w-[100%] shadow-md";
+  const styleInputCorrect =
+    "input text-[12px] lg:text-[15px] input-bordered block w-[100%] shadow-md";
   const styleInputError = styleInputCorrect + " input-error text-error";
 
   const styleTextAreaCorrect =
-    "textarea textarea-bordered block w-[100%] min-h-[358px] text-[15px] resize-none shadow-md";
+    "textarea textarea-bordered block w-[100%] min-h-[358px] text-[12px] lg:text-[15px] resize-none shadow-md";
   const styleTextAreaError =
     styleTextAreaCorrect + " textarea-error text-error";
 
   const placeholderTextArea =
-    "# Transitions syntax:\n# {FROM STATE},{READ},{DIRECTION},{WRITE},{TO STATE}\n\n# DIRECTION:                            [ LEFT < ]   [ RIGHT > ]   [ HOLD - ]\n# READ / WRITE:                       [ Any symbols without space ]   [ Blank symbol _ ]\n# FROM STATE / TO STATE:     [ Any words without space ]\n\n # Example:\nS1,a,>,b,S2\nS2,b,>,b,S2\nS2,_,-,_,END";
+    "# Transitions syntax:\n# {FROM STATE},{READ},{DIRECTION},{WRITE},{TO STATE}\n\n# DIRECTION:                            [ LEFT < ]   [ RIGHT > ]   [ HOLD - ]\n# READ / WRITE:                       [ Any symbols without space ]   [ Blank symbol _ ]\n# FROM STATE / TO STATE:     [ Any words alphanumeric without space ]\n\n # Example:\nS1,a,>,b,S2\nS2,b,>,b,S2\nS2,_,-,_,END";
 
   return (
     <div className="w-full my-[60px] overflow-hidden shadow-lg rounded-lg py-[30px] px-5">
@@ -267,24 +281,24 @@ const Input = () => {
             <i className="fa-solid fa-gear shadow-md"></i> COMPILE
           </button>
         </div>
-        <div className="mt-7 w-full md:flex md:justify-between md:gap-7">
-          <div className="mb-4 md:mb-0 md:w-1/3">
-            <button className="btn btn-outline shadow-md md:rounded-r-none w-full">
-              <i className="fa-solid fa-download"></i> SAVE TO FILE
-            </button>
-          </div>
-          <div className="mb-4 md:mb-0 md:w-1/3">
-            <button className="btn btn-outline shadow-md md:rounded-none w-full">
-              <i className="fa-solid fa-upload"></i> LOAD FROM FILE
-            </button>
-          </div>
-          <div className="md:w-1/3">
-            <button className="btn btn-outline shadow-md md:rounded-l-none w-full">
-              <i className="fa-solid fa-link"></i> SHARE LINK
-            </button>
-          </div>
-        </div>
       </form>
+      <div className="mt-7 w-full md:flex md:justify-between md:gap-7">
+        <div className="mb-4 md:mb-0 md:w-1/3">
+          <button className="btn btn-outline shadow-md md:rounded-r-none w-full">
+            <i className="fa-solid fa-download"></i> SAVE TO FILE
+          </button>
+        </div>
+        <div className="mb-4 md:mb-0 md:w-1/3">
+          <button className="btn btn-outline shadow-md md:rounded-none w-full">
+            <i className="fa-solid fa-upload"></i> LOAD FROM FILE
+          </button>
+        </div>
+        <div className="md:w-1/3">
+          <button className="btn btn-outline shadow-md md:rounded-l-none w-full">
+            <i className="fa-solid fa-link"></i> SHARE LINK
+          </button>
+        </div>
+      </div>
     </div>
   );
 };
